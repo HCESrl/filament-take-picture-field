@@ -40,6 +40,7 @@ TakePicture::make('camera_test')
     ->directory('uploads/services/payment_receipts_proof')
     ->visibility('public')
     ->useModal(true)
+    ->mirroredView(false)
     ->showCameraSelector(true)
     ->aspect('16:9')
     ->imageQuality(80)
@@ -48,16 +49,17 @@ TakePicture::make('camera_test')
 
 ## Configuration Options
 
-| Method | Description |
-|--------|-------------|
-| `disk(string $disk)` | Set the storage disk for saving photos (default: 'public') |
-| `directory(string $directory)` | Set the directory path within the disk where photos will be stored |
-| `visibility(string $visibility)` | Set the file visibility (e.g., 'public', 'private') |
-| `useModal(bool $useModal)` | Enable or disable modal view for the camera (default: 'true') |
-| `showCameraSelector(bool $showSelector)` | Enable or disable camera selection option for devices with multiple cameras (default: 'true') |
-| `aspect(string $aspect)` | Set the aspect ratio for the captured image (e.g., '16:9', '4:3', '1:1') |
-| `imageQuality(int $quality)` | Set the JPEG quality of the captured image (0-100) |
-| `shouldDeleteOnEdit(bool $shouldDelete)` | Whether to delete the previous file when editing (default: 'false') |
+| Method | Description                                                                                                       |
+|--------|-------------------------------------------------------------------------------------------------------------------|
+| `disk(string $disk)` | Set the storage disk for saving photos (default: 'public')                                                        |
+| `directory(string $directory)` | Set the directory path within the disk where photos will be stored                                                |
+| `visibility(string $visibility)` | Set the file visibility (e.g., 'public', 'private')                                                               |
+| `useModal(bool $useModal)` | Enable or disable modal view for the camera (default: 'true')                                                     |
+| `mirroredView(bool $mirroredView)` | Enable or disable mirror view for camera, in which camera is flipped horizontally like a mirror (default: 'true') |
+| `showCameraSelector(bool $showSelector)` | Enable or disable camera selection option for devices with multiple cameras (default: 'true')                     |
+| `aspect(string $aspect)` | Set the aspect ratio for the captured image (e.g., '16:9', '4:3', '1:1')                                          |
+| `imageQuality(int $quality)` | Set the JPEG quality of the captured image (0-100)                                                                |
+| `shouldDeleteOnEdit(bool $shouldDelete)` | Whether to delete the previous file when editing (default: 'false')                                               |
 
 ## ❗ IMPORTANT NOTICE: For Local development
 

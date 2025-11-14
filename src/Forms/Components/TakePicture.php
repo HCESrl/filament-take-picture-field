@@ -34,6 +34,7 @@ class TakePicture extends Field {
     protected bool $showCameraSelector = false;
     protected int $imageQuality = 90;
     protected string $aspect = '16:9';
+    protected bool $mirroredView = true;
     protected bool $useModal = true;
     protected bool $shouldDeleteOnEdit = true;
 
@@ -100,6 +101,12 @@ class TakePicture extends Field {
 
         return $this;
     }
+    public function mirroredView(bool $mirroredView): static
+    {
+        $this->mirroredView = $mirroredView;
+
+        return $this;
+    }
 
     public function useModal(bool $useModal = true): static
     {
@@ -146,6 +153,11 @@ class TakePicture extends Field {
     public function getAspect(): string
     {
         return $this->aspect;
+    }
+
+    public function getMirroredView(): string
+    {
+        return $this->mirroredView ? 'true' : 'false';
     }
 
     public function getUseModal(): bool
