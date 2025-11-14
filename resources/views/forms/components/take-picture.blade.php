@@ -23,7 +23,7 @@
             urlPrefix: '{{ $getImageUrlPrefix() }}',
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
             currentFacingMode: 'environment',
-            
+
             getImageUrl(path) {
                 if (!path) return null;
                 if (path.startsWith('data:image/')) return path;
@@ -39,12 +39,12 @@
                 try {
                     const devices = await navigator.mediaDevices.enumerateDevices();
                     this.availableCameras = devices.filter(device => device.kind === 'videoinput');
-                    
+
                     if (this.availableCameras.length > 0 && !this.selectedCameraId) {
                         //default cam
                         this.selectedCameraId = this.availableCameras[0].deviceId;
                     }
-                    
+
                     return this.availableCameras;
                 } catch (error) {
                     console.error('Error getting camera devices:', error);
@@ -52,16 +52,16 @@
                     return [];
                 }
             },
-            
+
             async initWebcam() {
                 if (this.isDisabled) return;
                 this.webcamActive = true;
                 this.webcamError = null;
-                
+
                 //aspect ratio
                 let aspectWidth = 16;
                 let aspectHeight = 9;
-                
+
                 if (this.aspectRatio) {
                     const parts = this.aspectRatio.split(':');
                     if (parts.length === 2) {
@@ -69,7 +69,7 @@
                         aspectHeight = parseInt(parts[1]);
                     }
                 }
-                
+
                 const constraints = {
                     video: {
                         facingMode: this.isMobile ? this.currentFacingMode : 'user',
@@ -78,21 +78,21 @@
                     },
                     audio: false
                 };
-                
+
                 //camera is selected, use deviceId
                 if (this.selectedCameraId) {
                     constraints.video.deviceId = { exact: this.selectedCameraId };
                 }
-                
+
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
                     this.cameraStream = stream;
                     this.$refs.video.srcObject = stream;
-                    
+
                     if ({{ $getShowCameraSelector() ? 'true' : 'false' }}) {
                         await this.getCameras();
                     }
-                    
+
                     if ({{ $getUseModal() ? 'true' : 'false' }} && !this.modalOpen) {
                         this.openModal();
                     }
@@ -101,7 +101,7 @@
                     this.handleWebcamError(error);
                 }
             },
-            
+
             handleWebcamError(error) {
 
                 //mobile error
@@ -138,7 +138,7 @@
                         this.webcamError = '{{ __('An unknown error occurred while trying to open the camera') }}';
                 }
             },
-            
+
             async changeCamera(cameraId) {
                 this.selectedCameraId = cameraId;
                 if (this.webcamActive) {
@@ -147,42 +147,42 @@
                     this.initWebcam();
                 }
             },
-            
+
             capturePhoto() {
                 const video = this.$refs.video;
                 const canvas = document.createElement('canvas');
-                
+
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 const context = canvas.getContext('2d');
-                
+
                 if (this.mirroredView) {
                     context.translate(canvas.width, 0);
                     context.scale(-1, 1);
                 }
-                
+
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
+
                 const quality = this.imageQuality / 100;
                 this.photoData = canvas.toDataURL('image/jpeg', quality);
-                
+
                 //after capture, stop the cam
                 this.stopCamera();
-                
+
                 if (this.modalOpen) {
                     this.closeModal();
                 }
             },
-            
+
             usePhoto() {
                 this.photoSelected = true;
             },
-            
+
             retakePhoto() {
                 this.photoSelected = false;
                 this.initWebcam();
             },
-            
+
             stopCamera() {
                 this.webcamActive = false;
                 if (this.cameraStream) {
@@ -190,7 +190,7 @@
                     this.cameraStream = null;
                 }
             },
-            
+
             toggleCamera() {
                 if (this.webcamActive) {
                     this.stopCamera();
@@ -198,7 +198,7 @@
                     this.initWebcam();
                 }
             },
-            
+
             toggleMirror() {
                 this.mirroredView = !this.mirroredView;
             },
@@ -206,15 +206,15 @@
             flipCamera() {
                 //if multiple mobile cams, enable
                 if (this.availableCameras.length < 2) return;
-                
+
                 const currentIndex = this.availableCameras.findIndex(
                     cam => cam.deviceId === this.selectedCameraId
                 );
-                
+
                 const nextIndex = (currentIndex + 1) % this.availableCameras.length;
                 const nextCamera = this.availableCameras[nextIndex];
                 this.selectedCameraId = nextCamera.deviceId;
-                
+
                 const constraints = {
                     video: {
                         deviceId: { exact: nextCamera.deviceId },
@@ -237,8 +237,8 @@
                         if (this.$refs.video) {
                             this.$refs.video.srcObject = stream;
                         }
-                        this.currentFacingMode = nextCamera.label.toLowerCase().includes('back') 
-                            ? 'environment' 
+                        this.currentFacingMode = nextCamera.label.toLowerCase().includes('back')
+                            ? 'environment'
                             : 'user';
                     })
                     .catch(error => {
@@ -250,7 +250,7 @@
 
             handlePreviewClick() {
                 if (!this.photoData) return;
-                
+
                 //preview click
                 if (this.photoData.startsWith('data:image/')) {
 
@@ -259,56 +259,56 @@
                     const mimeString = this.photoData.split(',')[0].split(':')[1].split(';')[0];
                     const ab = new ArrayBuffer(byteString.length);
                     const ia = new Uint8Array(ab);
-                    
+
                     for (let i = 0; i < byteString.length; i++) {
                         ia[i] = byteString.charCodeAt(i);
                     }
-                    
+
                     const blob = new Blob([ab], { type: mimeString });
                     const url = URL.createObjectURL(blob);
-                    
+
                     window.open(url, '_blank').focus();
                     return;
                 }
-                
+
                 //for url
                 window.open(this.getImageUrl(this.photoData), '_blank');
             },
-            
+
             isBase64Image() {
                 return this.photoData && this.photoData.startsWith('data:image/');
             },
-            
+
             clearPhoto() {
                 this.photoData = null;
                 this.photoSelected = false;
             },
-            
+
             openModal() {
                 this.modalOpen = true;
                 document.body.classList.add('overflow-hidden');
             },
-            
+
             closeModal() {
                 this.modalOpen = false;
                 document.body.classList.remove('overflow-hidden');
                 this.stopCamera();
             }
         }"
-        x-init="() => { 
+        x-init="() => {
 
             if (window.location.protocol !== 'https:' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
                 webcamError = '{{ __('Camera access requires HTTPS on mobile devices') }}';
             }
 
-            if (!photoData) { 
+            if (!photoData) {
                 if ({{ $getUseModal() ? 'false' : 'true' }}) {
-                    initWebcam(); 
+                    initWebcam();
                 }
-            } else if (!isBase64Image()) { 
-                photoSelected = true; 
+            } else if (!isBase64Image()) {
+                photoSelected = true;
             }
-            
+
             if ({{ $getShowCameraSelector() ? 'true' : 'false' }}) {
                 getCameras();
             }
@@ -318,65 +318,59 @@
     >
         <!-- preview thumbnail -->
         <div class="flex items-center space-x-4">
-            
+
             <div class="relative w-20 h-20">
 
                 <!-- photo-preview available -->
                 <template x-if="photoData">
                     <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shadow-sm border border-gray-300"
-                        :class="{'cursor-default': {{ json_encode($isDisabled) }}, 'cursor-pointer hover:shadow-md': !{{ json_encode($isDisabled) }}}"
+                         :class="{'cursor-default': {{ json_encode($isDisabled) }}, 'cursor-pointer hover:shadow-md': !{{ json_encode($isDisabled) }}}"
                     >
                         <!-- get url -->
                         <img :src="photoData ? getImageUrl(photoData) : ''" class="w-full h-full object-cover">
-                        
+
                         <!-- edit Button (visible only when not disabled) -->
-                        <div class="absolute bottom-0 right-0 p-1 bg-gray-800 bg-opacity-70 rounded-tl" 
-                            x-show="!{{ json_encode($isDisabled) }}"
-                            @click.stop="initWebcam()">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
+                        <div class="absolute bottom-0 right-0 p-1 bg-gray-800 bg-opacity-70 rounded-tl"
+                             x-show="!{{ json_encode($isDisabled) }}"
+                             @click.stop="initWebcam()">
+
+                            <x-filament::icon class="h-4 w-4 text-white" icon="heroicon-o-pencil-square" />
                         </div>
-                        
+
                         <!-- preview button -->
                         <div class="absolute top-0 left-0 p-1 bg-gray-800 bg-opacity-70 rounded-br">
-                            <button 
+                            <button
                                 type="button"
                                 @click.stop="handlePreviewClick()"
                                 class="block"
                                 x-show="photoData"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                                </svg>
+                                <x-filament::icon class="h-4 w-4 text-white" icon="heroicon-o-eye" />
                             </button>
                         </div>
 
                     </div>
                 </template>
-                
+
                 <!-- take photo button -->
                 <template x-if="!photoData">
-                    <button 
+                    <button
                         type="button"
                         @click="!{{ json_encode($isDisabled) }} && initWebcam()"
                         class="w-24 h-24 rounded-lg border border-dashed border-gray-400 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
                         :class="{'cursor-default pointer-events-none opacity-70': {{ json_encode($isDisabled) }}, 'cursor-pointer': !{{ json_encode($isDisabled) }}}"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <x-filament::icon class="h-8 w-8 text-gray-600" icon="heroicon-o-camera" />
+
                         <span class="mt-1 text-xs text-gray-600">{{ __('Take Photo') }}</span>
                     </button>
                 </template>
-                
+
                 <!-- clear button -->
                 <template x-if="photoData && !{{ json_encode($isDisabled) }}">
-                    <button 
-                        type="button" 
-                        @click.stop="clearPhoto()" 
+                    <button
+                        type="button"
+                        @click.stop="clearPhoto()"
                         class="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-sm hover:bg-red-600 transition-colors"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -384,9 +378,9 @@
                         </svg>
                     </button>
                 </template>
-                
+
             </div>
-            
+
             <!-- help text -->
             @if (!$isDisabled)
                 <div class="text-sm ml-4">
@@ -395,7 +389,7 @@
                 </div>
             @endif
         </div>
-        
+
         <!-- display error message, when accessing the camera -->
         <template x-if="webcamError && !modalOpen">
             <div class="text-red-500 bg-red-50 py-2 px-3 rounded text-sm">
@@ -405,11 +399,11 @@
 
         <!-- field to store the captured picture -->
         <input type="hidden" {{ $applyStateBindingModifiers('wire:model') }}="{{ $getStatePath() }}">
-        
+
         <!-- MODAL -->
         <template x-teleport="body">
-            <div 
-                x-show="modalOpen" 
+            <div
+                x-show="modalOpen"
                 @click.self="closeModal()"
                 x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0"
@@ -420,7 +414,7 @@
                 class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4"
                 style="display: none;"
             >
-                <div 
+                <div
                     @click.stop
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 scale-95"
@@ -435,8 +429,8 @@
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                             {{ __('Take Photo') }}
                         </h3>
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             @click="closeModal()"
                             class="text-gray-400 hover:text-gray-500"
                         >
@@ -445,7 +439,7 @@
                             </svg>
                         </button>
                     </div>
-                    
+
                     <!-- MODAL BODY -->
                     <div class="p-4">
                         <!-- CAMERA VIEW  -->
@@ -453,22 +447,21 @@
                             <!-- PRVIEW -->
                             <template x-if="webcamActive && !webcamError">
                                 <div class="aspect-video flex items-center justify-center">
-                                    <video 
-                                        x-ref="video" 
-                                        autoplay 
+                                    <video
+                                        x-ref="video"
+                                        autoplay
                                         playsinline
                                         :style="mirroredView ? 'transform: scaleX(-1);' : ''"
                                         class="max-w-full max-h-[60vh] object-contain"
                                     ></video>
                                 </div>
                             </template>
-                            
+
                             <!-- ERROR -->
                             <template x-if="webcamError">
                                 <div class="aspect-video bg-gray-800 flex flex-col items-center justify-center text-center p-6">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
+                                    <x-filament::icon class="h-8 w-8 text-red-500" icon="heroicon-o-exclamation-triangle" />
+
                                     <span class="text-white text-lg font-medium" x-text="webcamError"></span>
 
                                     <button
@@ -478,10 +471,10 @@
                                     >
                                         {{ __('Try Again') }}
                                     </button>
-                                    
+
                                 </div>
                             </template>
-                            
+
                             <!-- TAKE PHOTO BUTTON -->
                             <template x-if="webcamActive && !webcamError">
                                 <div class="absolute bottom-4 left-0 right-0 flex justify-center">
@@ -491,13 +484,11 @@
                                         class="w-16 h-16 rounded-full bg-primary-600 hover:bg-primary-700 border-4 border-white flex items-center justify-center shadow-lg"
                                         title="{{ __('Take Photo') }}"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                        </svg>
+                                        <x-filament::icon class="h-8 w-8 text-white" icon="heroicon-o-camera" />
                                     </button>
                                 </div>
                             </template>
-                            
+
                             <!-- MIRROR -->
                             <template x-if="webcamActive && !webcamError">
                                 <div class="absolute top-4 right-4">
@@ -507,9 +498,7 @@
                                         class="w-10 h-10 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center"
                                         :title="mirroredView ? disableMirrorText : enableMirrorText"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                        </svg>
+                                        <x-filament::icon class="h-6 w-6" icon="heroicon-o-arrow-path" />
                                     </button>
                                 </div>
                             </template>
@@ -522,17 +511,17 @@
                                         @click="flipCamera()"
                                         class="w-10 h-10 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center"
                                         title="{{ __('Flip Camera') }}"
+
+
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                                        </svg>
+                                        <x-filament::icon class="h-6 w-6" icon="heroicon-o-arrow-uturn-down" />
                                     </button>
                                 </div>
                             </template>
 
 
                         </div>
-                        
+
                         <!-- CAMERA SELECTOR DROPDOWN -->
                         <template x-if="{{ $getShowCameraSelector() ? 'true' : 'false' }} && availableCameras.length > 1">
                             <div class="mb-4">
@@ -547,8 +536,8 @@
                                         focus:border-primary-500 focus:ring-primary-500"
                                 >
                                     <template x-for="(camera, index) in availableCameras" :key="camera.deviceId">
-                                        <option 
-                                            :value="camera.deviceId" 
+                                        <option
+                                            :value="camera.deviceId"
                                             class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300"
                                             x-text="`Camera ${index + 1} (${camera.label || 'Unnamed Camera'})`"
                                         ></option>
@@ -556,7 +545,7 @@
                                 </select>
                             </div>
                         </template>
-                        
+
                         <!-- ACTION BUTTONS -->
                         <div class="flex justify-end gap-2">
                             <button
@@ -566,7 +555,7 @@
                             >
                                 {{ __('Cancel') }}
                             </button>
-                            
+
                             <!-- TAKE PHOTO -->
                             <button
                                 type="button"
