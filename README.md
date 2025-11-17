@@ -61,6 +61,14 @@ TakePicture::make('camera_test')
 | `imageQuality(int $quality)` | Set the JPEG quality of the captured image (0-100)                                                                |
 | `shouldDeleteOnEdit(bool $shouldDelete)` | Whether to delete the previous file when editing (default: 'false')                                               |
 
+## CSS Builds
+If some of the plugin's buttons are not visible, or the layout doesn't look right, probably your Tailwind CSS build is not generating the component's styles.
+Try adding 
+```
+@source '../../../vendor/emmanpbarrameda/filament-take-picture-field/resources/views/forms/components/take-picture.blade.php';
+```
+to your `resources/css/filament/theme.css` file, or to your tailwind config file.
+
 ## ❗ IMPORTANT NOTICE: For Local development
 
 The browser's Camera API only works on **secure origins** (HTTPS). Many browsers treat `https://localhost` as secure, but **plain** `http://` over an IP (e.g., `http://127.0.0.1:8000`) is considered insecure and the camera will be blocked. If it isn't working for you on `localhost`, switch to HTTPS or use the temporary Chrome test flags below.
