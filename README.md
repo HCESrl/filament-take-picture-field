@@ -41,6 +41,7 @@ TakePicture::make('camera_test')
     ->visibility('public')
     ->useModal(true)
     ->mirroredView(false)
+    ->canvasSize([768, 1024])
     ->showCameraSelector(true)
     ->aspect('16:9')
     ->imageQuality(80)
@@ -49,17 +50,18 @@ TakePicture::make('camera_test')
 
 ## Configuration Options
 
-| Method | Description                                                                                                       |
-|--------|-------------------------------------------------------------------------------------------------------------------|
-| `disk(string $disk)` | Set the storage disk for saving photos (default: 'public')                                                        |
-| `directory(string $directory)` | Set the directory path within the disk where photos will be stored                                                |
-| `visibility(string $visibility)` | Set the file visibility (e.g., 'public', 'private')                                                               |
-| `useModal(bool $useModal)` | Enable or disable modal view for the camera (default: 'true')                                                     |
-| `mirroredView(bool $mirroredView)` | Enable or disable mirror view for camera, in which camera is flipped horizontally like a mirror (default: 'true') |
-| `showCameraSelector(bool $showSelector)` | Enable or disable camera selection option for devices with multiple cameras (default: 'true')                     |
-| `aspect(string $aspect)` | Set the aspect ratio for the captured image (e.g., '16:9', '4:3', '1:1')                                          |
-| `imageQuality(int $quality)` | Set the JPEG quality of the captured image (0-100)                                                                |
-| `shouldDeleteOnEdit(bool $shouldDelete)` | Whether to delete the previous file when editing (default: 'false')                                               |
+| Method                                   | Description                                                                                                                                                                                                                             |
+|------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `disk(string $disk)`                     | Set the storage disk for saving photos (default: 'public')                                                                                                                                                                              |
+| `directory(string $directory)`           | Set the directory path within the disk where photos will be stored                                                                                                                                                                      |
+| `visibility(string $visibility)`         | Set the file visibility (e.g., 'public', 'private')                                                                                                                                                                                     |
+| `useModal(bool $useModal)`               | Enable or disable modal view for the camera (default: 'true')                                                                                                                                                                           |
+| `mirroredView(bool $mirroredView)`       | Enable or disable mirror view for camera, in which camera is flipped horizontally like a mirror (default: 'true')                                                                                                                       |
+| `canvasSize(array $canvasSize)`          | Allows to define the size of the canvas in which the image gets saved client-side. Useful to make sure you don't get huge images. Defaults to size of image coming from the device. Expects an array with two numbers, width and height |
+| `showCameraSelector(bool $showSelector)` | Enable or disable camera selection option for devices with multiple cameras (default: 'true')                                                                                                                                           |
+| `aspect(string $aspect)`                 | Set the aspect ratio for the captured image (e.g., '16:9', '4:3', '1:1')                                                                                                                                                                |
+| `imageQuality(int $quality)`             | Set the JPEG quality of the captured image (0-100)                                                                                                                                                                                      |
+| `shouldDeleteOnEdit(bool $shouldDelete)` | Whether to delete the previous file when editing (default: 'false')                                                                                                                                                                     |
 
 ## CSS Builds
 If some of the plugin's buttons are not visible, or the layout doesn't look right, probably your Tailwind CSS build is not generating the component's styles.

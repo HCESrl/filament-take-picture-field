@@ -16,6 +16,7 @@
             availableCameras: [],
             selectedCameraId: null,
             modalOpen: false,
+            canvasSize: {{ $getCanvasSize() }},
             aspectRatio: '{{ $getAspect() }}',
             imageQuality: {{ $getImageQuality() }},
             mirroredView: {{ $getMirroredView() }},
@@ -151,9 +152,13 @@
             capturePhoto() {
                 const video = this.$refs.video;
                 const canvas = document.createElement('canvas');
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                if (this.canvasSize) {
+                    canvas.width = this.canvasSize[0];
+                    canvas.height = this.canvasSize[1] ? this.canvasSize[1] : canvas.width;
+                } else {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                }
                 const context = canvas.getContext('2d');
 
                 if (this.mirroredView) {
