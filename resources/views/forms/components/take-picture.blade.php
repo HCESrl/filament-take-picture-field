@@ -513,7 +513,7 @@
 
                     <!-- Modal body -->
                     <div class="p-6">
-                        <div class="relative rounded-lg overflow-hidden bg-gray-950 mb-4">
+                        <div class="relative rounded-lg overflow-hidden bg-black mb-4">
 
                             <!-- Video preview (camera active) -->
                             <div x-show="webcamActive && !webcamError" class="aspect-video flex items-center justify-center">
